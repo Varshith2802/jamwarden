@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JamWarden - GNSS interference monitor</title>
+<!-- vendored (works offline in the field): Leaflet 1.9.4 (BSD-2), Chart.js 4.4.1 (MIT) -->
+<link rel="stylesheet" href="/static/leaflet/leaflet.css">
+<script src="/static/leaflet/leaflet.js"></script>
+<script src="/static/chart.umd.js"></script>
+<style>
+  :root { --bg:#0f1418; --card:#171e24; --ink:#e6ebef; --muted:#93a1ad; --line:#26313a; --ok:#3ecf8e; --jam:#ff5c5c; --spoof:#b78cff; }
+  * { box-sizing:border-box } body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.45 system-ui,sans-serif }
+  header { padding:14px 18px; border-bottom:1px solid var(--line); display:flex; gap:16px; align-items:baseline; flex-wrap:wrap }
+  h1 { font-size:18px; margin:0 } .muted { color:var(--muted) }
+  main { display:grid; grid-template-columns: 1.2fr 1fr; gap:14px; padding:14px }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr } }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px }
+  #map { height:420px; border-radius:8px }
+  .state { font-weight:700; padding:2px 8px; border-radius:999px; border:1px solid currentColor }
+  .ok { color:var(--ok) } .jamming { color:var(--jam) } .spoofing { color:var(--spoof) } .learning { color:var(--muted) }
+  .jamming\+spoofing { color:var(--jam) }
+  table { width:100%; border-collapse:collapse; font-size:13px } td, th { padding:5px 6px; border-bottom:1px solid var(--line); text-align:left }
+  .chartbox { position:relative; height:180px; margin-bottom:6px }
+</style>
+</head>
+<body>
+<header>
+  <h1>JamWarden</h1><span class="muted">GNSS jamming &amp; spoofing monitor</span>
+  <span id="summary" class="muted"></span>
+</header>
+<main>
+  <section class="card"><div id="map"></div><div id="sensors" style="margin-top:10px"></div></section>
+  <section class="card charts">
+    <div class="chartbox"><canvas id="c1"></canvas></div>
+    <div class="chartbox"><canvas id="c2"></canvas></div>
+    <div class="chartbox"><canvas id="c3"></canvas></div>
+  </section>
+  <section class="card" style="grid-column:1/-1">
+    <h3 style="margin:4px 0 8px">Events</h3>
+    <table><thead><tr><th>time (UTC)</th><th>sensor</th><th>event</th><th>severity</th><th>reasons</th><th>position</th></tr></thead>
+      <tbody id="events"></tbody></table>
+  </section>
+</main>
+<script>
+const map = L.map('map').setView([56.16, 15.59], 8);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '&copy; OpenStreetMap'}).addTo(map);
+const sensorLayer = L.layerGroup().addTo(map), eventLayer = L.layerGroup().addTo(map);
+const colors = {ok:'#3ecf8e', jamming:'#ff5c5c', spoofing:'#b78cff', 'jamming+spoofing':'#ff5c5c', learning:'#93a1ad'};
+function chart(id, sets, yTitle) {
+  return new Chart(document.getElementById(id), {type:'line', data:{labels:[], datasets: sets.map(([label, color]) =>
+    ({label, data:[], borderColor:color, pointRadius:0, borderWidth:1.5}))},
+    options:{animation:false, responsive:true, maintainAspectRatio:false, scales:{x:{ticks:{color:'#93a1ad', maxTicksLimit:8}},
+    y:{title:{display:true, text:yTitle, color:'#93a1ad'}, ticks:{color:'#93a1ad'}}}, plugins:{legend:{labels:{color:'#e6ebef'}}}}});
+}
+const c1 = chart('c1', [['C/N0 top-6 (dB-Hz)', '#4ea8de']], 'dB-Hz');
+const c2 = chart('c2', [['AGC', '#f4a261'], ['noise x10', '#e76f51'], ['CW indicator x10', '#ff5c5c']], 'counts');
+const c3 = chart('c3', [['jamming score', '#ff5c5c'], ['spoofing score', '#b78cff']], 'score');
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let fitted = false;
+async function refresh() {
+  const [sensors, events, series] = await Promise.all(['/api/sensors', '/api/events?limit=100', '/api/series?n=900'].map(u => fetch(u).then(r => r.json())));
+  sensorLayer.clearLayers(); eventLayer.clearLayers();
+  sensors.forEach(s => { if (s.lat == null) return;
+    L.circleMarker([s.lat, s.lon], {radius:9, color:colors[s.state] || '#fff', fillOpacity:0.8})
+      .bindPopup(`<b>${esc(s.sensor)}</b><br>${esc(s.state)}<br>C/N0 ${s.cno_top} AGC ${s.agc}`).addTo(sensorLayer); });
+  events.filter(e => e.event.endsWith('_start') && e.lat != null).forEach(e =>
+    L.circleMarker([e.lat, e.lon], {radius:5, color:e.event.startsWith('jam') ? colors.jamming : colors.spoofing})
+      .bindPopup(`${esc(e.event)} (${esc(e.severity)})<br>${esc(e.utc)}<br>${esc(JSON.parse(e.reasons).join(', '))}`).addTo(eventLayer));
+  if (!fitted && sensors.length && sensors[0].lat != null) { map.setView([sensors[0].lat, sensors[0].lon], 13); fitted = true; }
+  document.getElementById('sensors').innerHTML = sensors.map(s =>
+    `<span class="state ${esc(s.state)}">${esc(s.sensor)}: ${esc(s.state)}</span> `).join('');
+  document.getElementById('summary').textContent = `${sensors.length} sensor(s) - ${events.length} recent events`;
+  document.getElementById('events').innerHTML = events.map(e => `<tr><td>${esc(e.utc)}</td><td>${esc(e.sensor)}</td>
+    <td class="${e.event.startsWith('jam') ? 'jamming' : e.event.startsWith('spoof') ? 'spoofing' : 'muted'}">${esc(e.event)}</td>
+    <td>${esc(e.severity)}</td><td>${esc(JSON.parse(e.reasons).join(', '))}</td>
+    <td>${e.lat != null ? e.lat.toFixed(5) + ', ' + e.lon.toFixed(5) : ''}</td></tr>`).join('');
+  const labels = series.map(p => p.epoch);
+  c1.data.labels = c2.data.labels = c3.data.labels = labels;
+  c1.data.datasets[0].data = series.map(p => p.cno_top);
+  c2.data.datasets[0].data = series.map(p => p.agc);
+  c2.data.datasets[1].data = series.map(p => p.noise * 10);
+  c2.data.datasets[2].data = series.map(p => p.jamInd * 10);
+  c3.data.datasets[0].data = series.map(p => p.jam_score);
+  c3.data.datasets[1].data = series.map(p => p.spoof_score);
+  [c1, c2, c3].forEach(c => c.update());
+}
+refresh(); setInterval(refresh, 2000);
+</script>
+</body>
+</html>

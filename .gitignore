@@ -1,0 +1,10 @@
+core/build*/
+__pycache__/
+.pytest_cache/
+*.db
+firmware/esp32/.pio/
+report/*.aux
+report/*.log
+report/*.out
+report/*.fls
+report/*.fdb_latexmk

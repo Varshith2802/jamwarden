@@ -1,0 +1,28 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  core-and-tools:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Build + C++ unit tests (with sanitizers)
+        run: |
+          cmake -S core -B core/build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -Werror"
+          cmake --build core/build -j
+          ./core/build/jamwarden_tests
+      - run: python -m pytest -q tests
+      - run: python eval/run_eval.py --seeds 5
+      - run: make firmware-check
+  firmware:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install platformio
+      - run: cd firmware/esp32 && pio run -e esp32dev -e esp32dev-wifi

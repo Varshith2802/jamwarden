@@ -1,0 +1,23 @@
+{
+  "scenario": "jam_cw",
+  "seed": 1,
+  "duration": 900,
+  "receiver_flags": false,
+  "platform": "static",
+  "reference": [
+    56.1612,
+    15.5869,
+    32.0
+  ],
+  "truth": [
+    {
+      "type": "jamming",
+      "kind": "jam_cw",
+      "start": 304,
+      "end": 451,
+      "peak_db": 10.459,
+      "jamind": 193
+    }
+  ],
+  "description": "continuous-wave jammer (high CW indicator, moderate C/N0 loss)"
+}

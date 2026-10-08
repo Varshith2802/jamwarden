@@ -1,0 +1,24 @@
+{
+  "scenario": "ship_spoof_jump",
+  "seed": 1,
+  "duration": 900,
+  "receiver_flags": false,
+  "platform": "ship",
+  "reference": [
+    56.1612,
+    15.5869,
+    32.0
+  ],
+  "truth": [
+    {
+      "type": "spoofing",
+      "kind": "spoof_jump",
+      "start": 336,
+      "end": 900,
+      "dist_km": 44.63,
+      "heading": 300.347,
+      "power_db": 7.406
+    }
+  ],
+  "description": "vessel: position jumps 30-80 km (Baltic pattern), motion continues"
+}

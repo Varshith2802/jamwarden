@@ -1,0 +1,23 @@
+{
+  "scenario": "spoof_time",
+  "seed": 1,
+  "duration": 900,
+  "receiver_flags": false,
+  "platform": "static",
+  "reference": [
+    56.1612,
+    15.5869,
+    32.0
+  ],
+  "truth": [
+    {
+      "type": "spoofing",
+      "kind": "spoof_time",
+      "start": 310,
+      "end": 900,
+      "shift_ms": 5662,
+      "power_db": 3.564
+    }
+  ],
+  "description": "spoofer shifts GNSS time by 2-10 s (attack on timing receivers)"
+}

@@ -1,0 +1,24 @@
+{
+  "scenario": "smart_spoof_slow",
+  "seed": 1,
+  "duration": 900,
+  "receiver_flags": false,
+  "platform": "static",
+  "reference": [
+    56.1612,
+    15.5869,
+    32.0
+  ],
+  "truth": [
+    {
+      "type": "spoofing",
+      "kind": "spoof_smart",
+      "start": 333,
+      "end": 900,
+      "speed": 0.3,
+      "heading": 309.219,
+      "power_db": 2.555
+    }
+  ],
+  "description": "hard: power-matched, elevation-aware spoofer dragging at 0.3 m/s"
+}

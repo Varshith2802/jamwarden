@@ -1,0 +1,25 @@
+{
+  "scenario": "spoof_drag",
+  "seed": 1,
+  "duration": 900,
+  "receiver_flags": false,
+  "platform": "static",
+  "reference": [
+    56.1612,
+    15.5869,
+    32.0
+  ],
+  "truth": [
+    {
+      "type": "spoofing",
+      "kind": "spoof_drag",
+      "start": 274,
+      "end": 900,
+      "accel": 0.032,
+      "vmax": 5.0,
+      "heading": 309.033,
+      "power_db": 6.412
+    }
+  ],
+  "description": "spoofer takes over and slowly drags the position away (accelerating to 5 m/s)"
+}

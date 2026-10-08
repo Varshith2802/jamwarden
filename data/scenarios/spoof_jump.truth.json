@@ -1,0 +1,24 @@
+{
+  "scenario": "spoof_jump",
+  "seed": 1,
+  "duration": 900,
+  "receiver_flags": false,
+  "platform": "static",
+  "reference": [
+    56.1612,
+    15.5869,
+    32.0
+  ],
+  "truth": [
+    {
+      "type": "spoofing",
+      "kind": "spoof_jump",
+      "start": 252,
+      "end": 900,
+      "dist_km": 71.059,
+      "heading": 331.949,
+      "power_db": 7.772
+    }
+  ],
+  "description": "spoofer moves the position 30-80 km away (Baltic 'airport' pattern)"
+}

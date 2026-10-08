@@ -1,0 +1,22 @@
+{
+  "scenario": "obstruction",
+  "seed": 1,
+  "duration": 900,
+  "receiver_flags": false,
+  "platform": "static",
+  "reference": [
+    56.1612,
+    15.5869,
+    32.0
+  ],
+  "truth": [
+    {
+      "type": "negative",
+      "kind": "obstruction",
+      "start": 331,
+      "end": 430,
+      "sector": 263.416
+    }
+  ],
+  "description": "negative: half the sky blocked (bridge/crane), RF front end normal"
+}

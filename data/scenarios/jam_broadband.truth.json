@@ -1,0 +1,22 @@
+{
+  "scenario": "jam_broadband",
+  "seed": 1,
+  "duration": 900,
+  "receiver_flags": false,
+  "platform": "static",
+  "reference": [
+    56.1612,
+    15.5869,
+    32.0
+  ],
+  "truth": [
+    {
+      "type": "jamming",
+      "kind": "jam_broadband",
+      "start": 272,
+      "end": 378,
+      "peak_db": 12.876
+    }
+  ],
+  "description": "broadband jammer ramping up to 12-25 dB"
+}

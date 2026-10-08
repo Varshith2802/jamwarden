@@ -1,0 +1,22 @@
+{
+  "scenario": "weak_jam",
+  "seed": 1,
+  "duration": 900,
+  "receiver_flags": false,
+  "platform": "static",
+  "reference": [
+    56.1612,
+    15.5869,
+    32.0
+  ],
+  "truth": [
+    {
+      "type": "jamming",
+      "kind": "jam_broadband",
+      "start": 278,
+      "end": 441,
+      "peak_db": 6.084
+    }
+  ],
+  "description": "hard: low-power jammer (4-8 dB) - near the detection limit"
+}

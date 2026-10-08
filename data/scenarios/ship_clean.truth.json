@@ -1,0 +1,14 @@
+{
+  "scenario": "ship_clean",
+  "seed": 1,
+  "duration": 900,
+  "receiver_flags": false,
+  "platform": "ship",
+  "reference": [
+    56.1612,
+    15.5869,
+    32.0
+  ],
+  "truth": [],
+  "description": "vessel moving at 6 m/s (mobile mode) - false-alarm measurement"
+}

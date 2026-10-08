@@ -1,0 +1,21 @@
+{
+  "scenario": "multipath",
+  "seed": 1,
+  "duration": 900,
+  "receiver_flags": false,
+  "platform": "static",
+  "reference": [
+    56.1612,
+    15.5869,
+    32.0
+  ],
+  "truth": [
+    {
+      "type": "negative",
+      "kind": "multipath",
+      "start": 320,
+      "end": 555
+    }
+  ],
+  "description": "negative: strong multipath, C/N0 variance x3"
+}
